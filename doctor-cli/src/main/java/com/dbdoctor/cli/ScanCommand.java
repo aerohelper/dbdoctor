@@ -4,76 +4,74 @@ import com.databricks.sdk.WorkspaceClient;
 import com.dbdoctor.api.DatabricksClusterService;
 import com.dbdoctor.api.DatabricksJobService;
 import com.dbdoctor.api.DatabricksWarehouseService;
-import com.dbdoctor.checks.HealthCheck;
-import com.dbdoctor.checks.cluster.AutoTerminationCheck;
-import com.dbdoctor.checks.cluster.ExcessiveAutoTerminationCheck;
-import com.dbdoctor.checks.cluster.LocalDiskEncryptionDisabledCheck;
-import com.dbdoctor.checks.cluster.MissingClusterPolicyCheck;
-import com.dbdoctor.checks.cluster.NoInstancePoolCheck;
-import com.dbdoctor.checks.cluster.OutdatedRuntimeCheck;
-import com.dbdoctor.checks.cluster.OversizedClusterCheck;
-import com.dbdoctor.checks.job.ExcessiveRuntimeCheck;
-import com.dbdoctor.checks.job.MissingFailureNotificationsCheck;
-import com.dbdoctor.checks.job.NoRetryConfigurationCheck;
-import com.dbdoctor.checks.job.NoTimeoutConfiguredCheck;
-import com.dbdoctor.checks.job.RepeatedFailuresCheck;
-import com.dbdoctor.checks.warehouse.AutoStopDisabledCheck;
-import com.dbdoctor.checks.warehouse.OversizedWarehouseCheck;
-import com.dbdoctor.core.model.CheckResult;
-import com.dbdoctor.core.model.WorkspaceSnapshot;
+import com.dbdoctor.checks.HealthCheckRegistry;
+import com.dbdoctor.checks.WorkspaceScanner;
+import com.dbdoctor.core.config.DoctorConfig;
+import com.dbdoctor.core.model.HealthScore;
+import com.dbdoctor.core.model.ScanReport;
+import com.dbdoctor.core.score.ScoreCalculator;
+import com.dbdoctor.report.ConsoleReportRenderer;
+import com.dbdoctor.report.HtmlReportRenderer;
+import com.dbdoctor.report.JsonReportRenderer;
+import com.dbdoctor.report.ReportRenderer;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-import java.util.List;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 /**
- * Scans a Databricks workspace and runs all available health checks against it.
+ * Scans a Databricks workspace and runs every registered health check against it.
  * Authentication is resolved the same way as {@code dbdoctor auth test} — via the
  * Databricks SDK's unified authentication (env vars, {@code ~/.databrickscfg}, etc.).
- *
- * <p>This is a minimal runner: it prints each check's raw result. The scoring engine
- * and console/JSON/HTML report formats are later MVP phases.
  */
 @Command(name = "scan", description = "Scan a Databricks workspace for configuration issues and anti-patterns.")
 public class ScanCommand implements Callable<Integer> {
 
+    @Option(names = {"-f", "--format"}, description = "Report format: console, json, html (default: console)")
+    private String format = "console";
+
+    @Option(names = {"-o", "--output"}, description = "Write the report to this file instead of stdout")
+    private Path outputPath;
+
+    @Option(names = {"-c", "--config"}, description = "Path to a dbdoctor.yml config file overriding check thresholds")
+    private Path configPath;
+
     @Override
-    public Integer call() {
+    public Integer call() throws IOException {
         WorkspaceClient sdk = new WorkspaceClient();
+        DoctorConfig config = ConfigLoader.load(configPath);
 
-        WorkspaceSnapshot snapshot = new WorkspaceSnapshot(
-                new DatabricksClusterService(sdk).getClusters(),
-                new DatabricksJobService(sdk).getJobs(),
-                new DatabricksWarehouseService(sdk).getWarehouses()
+        WorkspaceScanner scanner = new WorkspaceScanner(
+                sdk.config().getHost(),
+                new DatabricksClusterService(sdk),
+                new DatabricksJobService(sdk),
+                new DatabricksWarehouseService(sdk),
+                HealthCheckRegistry.from(config)
         );
 
-        List<HealthCheck> checks = List.of(
-                new AutoTerminationCheck(),
-                new ExcessiveAutoTerminationCheck(),
-                new OutdatedRuntimeCheck(),
-                new MissingClusterPolicyCheck(),
-                new OversizedClusterCheck(),
-                new LocalDiskEncryptionDisabledCheck(),
-                new NoInstancePoolCheck(),
-                new NoRetryConfigurationCheck(),
-                new RepeatedFailuresCheck(),
-                new ExcessiveRuntimeCheck(),
-                new NoTimeoutConfiguredCheck(),
-                new MissingFailureNotificationsCheck(),
-                new AutoStopDisabledCheck(),
-                new OversizedWarehouseCheck()
-        );
+        ScanReport report = scanner.scan();
+        HealthScore score = new ScoreCalculator().calculate(report.results());
 
-        System.out.println("dbdoctor scan — " + sdk.config().getHost());
-        System.out.printf("Clusters: %d, Jobs: %d, Warehouses: %d%n%n",
-                snapshot.clusters().size(), snapshot.jobs().size(), snapshot.warehouses().size());
+        ReportRenderer renderer = switch (format.toLowerCase()) {
+            case "console" -> new ConsoleReportRenderer();
+            case "json" -> new JsonReportRenderer();
+            case "html" -> new HtmlReportRenderer();
+            default -> throw new IllegalArgumentException("Unknown report format: " + format);
+        };
 
-        for (HealthCheck check : checks) {
-            CheckResult result = check.execute(snapshot);
-            System.out.printf("[%s] %-8s %s — %s%n",
-                    result.checkId(), result.severity(), result.title(), result.description());
+        String rendered = renderer.render(report, score);
+
+        if (outputPath != null) {
+            Files.writeString(outputPath, rendered, StandardCharsets.UTF_8);
+            System.out.println("Report written to " + outputPath);
+        } else {
+            System.out.println(rendered);
         }
 
-        return 0;
+        return score.criticals() > 0 ? 1 : 0;
     }
 }
