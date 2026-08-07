@@ -17,7 +17,7 @@ class AutoTerminationCheckTest {
 
     @Test
     void detectsDisabledAutoTermination() {
-        ClusterInfo cluster = new ClusterInfo("c1", "risky", "RUNNING", "13.3.x", 0, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "risky", "RUNNING", "13.3.x", 0, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         CheckResult result = check.execute(snapshot);
@@ -28,7 +28,7 @@ class AutoTerminationCheckTest {
 
     @Test
     void acceptsConfiguredAutoTermination() {
-        ClusterInfo cluster = new ClusterInfo("c1", "safe", "RUNNING", "13.3.x", 30, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "safe", "RUNNING", "13.3.x", 30, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         CheckResult result = check.execute(snapshot);
@@ -38,7 +38,7 @@ class AutoTerminationCheckTest {
 
     @Test
     void handlesNullConfiguration() {
-        ClusterInfo cluster = new ClusterInfo("c1", "unknown", "RUNNING", "13.3.x", null, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "unknown", "RUNNING", "13.3.x", null, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         CheckResult result = check.execute(snapshot);

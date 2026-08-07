@@ -15,7 +15,7 @@ class RepeatedFailuresCheckTest {
 
     @Test
     void flagsRepeatedFailures() {
-        JobInfo job = new JobInfo(1L, "broken", null, null, null, null, 5, null);
+        JobInfo job = new JobInfo(1L, "broken", null, null, null, null, 5, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.CRITICAL, check.execute(snapshot).severity());
@@ -23,7 +23,7 @@ class RepeatedFailuresCheckTest {
 
     @Test
     void passesBelowThreshold() {
-        JobInfo job = new JobInfo(1L, "mostly-fine", null, null, null, null, 1, null);
+        JobInfo job = new JobInfo(1L, "mostly-fine", null, null, null, null, 1, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());
@@ -31,7 +31,7 @@ class RepeatedFailuresCheckTest {
 
     @Test
     void skipsJobWithUnknownRunHistory() {
-        JobInfo job = new JobInfo(1L, "unknown", null, null, null, null, null, null);
+        JobInfo job = new JobInfo(1L, "unknown", null, null, null, null, null, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());

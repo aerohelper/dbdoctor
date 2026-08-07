@@ -9,21 +9,21 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class MissingClusterPolicyCheckTest {
+class NoInstancePoolCheckTest {
 
-    private final MissingClusterPolicyCheck check = new MissingClusterPolicyCheck();
+    private final NoInstancePoolCheck check = new NoInstancePoolCheck();
 
     @Test
-    void flagsMissingPolicy() {
-        ClusterInfo cluster = new ClusterInfo("c1", "unmanaged", "RUNNING", "13.3.x", 30, null, null, null, null);
+    void flagsClusterWithoutPool() {
+        ClusterInfo cluster = new ClusterInfo("c1", "unpooled", "RUNNING", "13.3.x", 30, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
-        assertEquals(Severity.WARNING, check.execute(snapshot).severity());
+        assertEquals(Severity.INFO, check.execute(snapshot).severity());
     }
 
     @Test
-    void passesWhenPolicyPresent() {
-        ClusterInfo cluster = new ClusterInfo("c1", "managed", "RUNNING", "13.3.x", 30, null, "policy-123", null, null);
+    void passesClusterWithPool() {
+        ClusterInfo cluster = new ClusterInfo("c1", "pooled", "RUNNING", "13.3.x", 30, null, null, null, "pool-1");
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());

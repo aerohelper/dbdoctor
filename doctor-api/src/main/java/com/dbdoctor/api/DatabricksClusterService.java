@@ -34,7 +34,9 @@ public class DatabricksClusterService implements ClusterService {
                 details.getSparkVersion(),
                 autoTermination == null ? null : autoTermination.intValue(),
                 details.getNumWorkers(),
-                details.getPolicyId()
+                details.getPolicyId(),
+                details.getEnableLocalDiskEncryption(),
+                details.getInstancePoolId()
         );
     }
 }

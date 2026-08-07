@@ -15,7 +15,7 @@ class ExcessiveAutoTerminationCheckTest {
     @Test
     void flagsAboveThreshold() {
         ExcessiveAutoTerminationCheck check = new ExcessiveAutoTerminationCheck(60);
-        ClusterInfo cluster = new ClusterInfo("c1", "long-lived", "RUNNING", "13.3.x", 200, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "long-lived", "RUNNING", "13.3.x", 200, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         assertEquals(Severity.WARNING, check.execute(snapshot).severity());
@@ -24,7 +24,7 @@ class ExcessiveAutoTerminationCheckTest {
     @Test
     void passesAtOrBelowThreshold() {
         ExcessiveAutoTerminationCheck check = new ExcessiveAutoTerminationCheck(60);
-        ClusterInfo cluster = new ClusterInfo("c1", "fine", "RUNNING", "13.3.x", 60, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "fine", "RUNNING", "13.3.x", 60, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());
@@ -34,7 +34,7 @@ class ExcessiveAutoTerminationCheckTest {
     void ignoresDisabledAutoTermination() {
         // CLUSTER-001's job, not this check's — a null/0 value here should not also trip CLUSTER-002.
         ExcessiveAutoTerminationCheck check = new ExcessiveAutoTerminationCheck(60);
-        ClusterInfo cluster = new ClusterInfo("c1", "disabled", "RUNNING", "13.3.x", null, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "disabled", "RUNNING", "13.3.x", null, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());

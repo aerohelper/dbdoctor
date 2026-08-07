@@ -7,11 +7,15 @@ import com.dbdoctor.api.DatabricksWarehouseService;
 import com.dbdoctor.checks.HealthCheck;
 import com.dbdoctor.checks.cluster.AutoTerminationCheck;
 import com.dbdoctor.checks.cluster.ExcessiveAutoTerminationCheck;
+import com.dbdoctor.checks.cluster.LocalDiskEncryptionDisabledCheck;
 import com.dbdoctor.checks.cluster.MissingClusterPolicyCheck;
+import com.dbdoctor.checks.cluster.NoInstancePoolCheck;
 import com.dbdoctor.checks.cluster.OutdatedRuntimeCheck;
 import com.dbdoctor.checks.cluster.OversizedClusterCheck;
 import com.dbdoctor.checks.job.ExcessiveRuntimeCheck;
+import com.dbdoctor.checks.job.MissingFailureNotificationsCheck;
 import com.dbdoctor.checks.job.NoRetryConfigurationCheck;
+import com.dbdoctor.checks.job.NoTimeoutConfiguredCheck;
 import com.dbdoctor.checks.job.RepeatedFailuresCheck;
 import com.dbdoctor.checks.warehouse.AutoStopDisabledCheck;
 import com.dbdoctor.checks.warehouse.OversizedWarehouseCheck;
@@ -49,9 +53,13 @@ public class ScanCommand implements Callable<Integer> {
                 new OutdatedRuntimeCheck(),
                 new MissingClusterPolicyCheck(),
                 new OversizedClusterCheck(),
+                new LocalDiskEncryptionDisabledCheck(),
+                new NoInstancePoolCheck(),
                 new NoRetryConfigurationCheck(),
                 new RepeatedFailuresCheck(),
                 new ExcessiveRuntimeCheck(),
+                new NoTimeoutConfiguredCheck(),
+                new MissingFailureNotificationsCheck(),
                 new AutoStopDisabledCheck(),
                 new OversizedWarehouseCheck()
         );

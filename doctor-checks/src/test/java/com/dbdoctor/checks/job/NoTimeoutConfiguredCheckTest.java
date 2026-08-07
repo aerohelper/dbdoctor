@@ -9,29 +9,29 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ExcessiveRuntimeCheckTest {
+class NoTimeoutConfiguredCheckTest {
 
-    private final ExcessiveRuntimeCheck check = new ExcessiveRuntimeCheck(180);
+    private final NoTimeoutConfiguredCheck check = new NoTimeoutConfiguredCheck();
 
     @Test
-    void flagsLongRuntime() {
-        JobInfo job = new JobInfo(1L, "slow", null, null, null, null, null, 300L, false);
+    void flagsMissingTimeout() {
+        JobInfo job = new JobInfo(1L, "unbounded", null, null, null, null, null, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.WARNING, check.execute(snapshot).severity());
     }
 
     @Test
-    void passesWithinThreshold() {
-        JobInfo job = new JobInfo(1L, "quick", null, null, null, null, null, 10L, false);
+    void flagsZeroTimeout() {
+        JobInfo job = new JobInfo(1L, "zero", 0L, null, null, null, null, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
-        assertEquals(Severity.PASS, check.execute(snapshot).severity());
+        assertEquals(Severity.WARNING, check.execute(snapshot).severity());
     }
 
     @Test
-    void skipsJobWithUnknownDuration() {
-        JobInfo job = new JobInfo(1L, "unknown", null, null, null, null, null, null, false);
+    void passesConfiguredTimeout() {
+        JobInfo job = new JobInfo(1L, "bounded", 3600L, null, null, null, null, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());

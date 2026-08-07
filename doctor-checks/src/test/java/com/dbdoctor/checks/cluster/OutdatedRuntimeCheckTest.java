@@ -15,7 +15,7 @@ class OutdatedRuntimeCheckTest {
 
     @Test
     void flagsOldRuntime() {
-        ClusterInfo cluster = new ClusterInfo("c1", "old", "RUNNING", "10.4.x-scala2.12", 30, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "old", "RUNNING", "10.4.x-scala2.12", 30, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         assertEquals(Severity.WARNING, check.execute(snapshot).severity());
@@ -23,7 +23,7 @@ class OutdatedRuntimeCheckTest {
 
     @Test
     void passesCurrentRuntime() {
-        ClusterInfo cluster = new ClusterInfo("c1", "current", "RUNNING", "13.3.x-scala2.12", 30, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "current", "RUNNING", "13.3.x-scala2.12", 30, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());
@@ -31,7 +31,7 @@ class OutdatedRuntimeCheckTest {
 
     @Test
     void ignoresUnparseableVersionRatherThanFlagging() {
-        ClusterInfo cluster = new ClusterInfo("c1", "custom", "RUNNING", "custom-image", 30, null, null);
+        ClusterInfo cluster = new ClusterInfo("c1", "custom", "RUNNING", "custom-image", 30, null, null, null, null);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(cluster), List.of(), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());

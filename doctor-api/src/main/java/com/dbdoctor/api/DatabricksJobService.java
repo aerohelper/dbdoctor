@@ -7,7 +7,9 @@ import com.databricks.sdk.service.jobs.JobSettings;
 import com.databricks.sdk.service.jobs.ListJobsRequest;
 import com.databricks.sdk.service.jobs.ListRunsRequest;
 import com.databricks.sdk.service.jobs.RunResultState;
+import com.databricks.sdk.service.jobs.JobEmailNotifications;
 import com.databricks.sdk.service.jobs.Task;
+import com.databricks.sdk.service.jobs.WebhookNotifications;
 import com.dbdoctor.core.model.JobInfo;
 
 import java.util.ArrayList;
@@ -47,7 +49,20 @@ public class DatabricksJobService implements JobService {
         Long lastRunDurationMinutes = recentRuns == null ? null : lastRunDurationMinutes(recentRuns);
 
         return new JobInfo(job.getJobId(), name, timeoutSeconds, maxConcurrentRuns, tags,
-                hasConfiguredRetries, recentFailureCount, lastRunDurationMinutes);
+                hasConfiguredRetries, recentFailureCount, lastRunDurationMinutes,
+                hasFailureNotifications(settings));
+    }
+
+    private static boolean hasFailureNotifications(JobSettings settings) {
+        if (settings == null) {
+            return false;
+        }
+        JobEmailNotifications email = settings.getEmailNotifications();
+        if (email != null && email.getOnFailure() != null && !email.getOnFailure().isEmpty()) {
+            return true;
+        }
+        WebhookNotifications webhooks = settings.getWebhookNotifications();
+        return webhooks != null && webhooks.getOnFailure() != null && !webhooks.getOnFailure().isEmpty();
     }
 
     private static Boolean hasConfiguredRetries(JobSettings settings) {

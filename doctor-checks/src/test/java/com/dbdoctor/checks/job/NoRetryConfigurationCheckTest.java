@@ -15,7 +15,7 @@ class NoRetryConfigurationCheckTest {
 
     @Test
     void flagsJobWithNoRetries() {
-        JobInfo job = new JobInfo(1L, "fragile", null, null, null, false, null, null);
+        JobInfo job = new JobInfo(1L, "fragile", null, null, null, false, null, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.WARNING, check.execute(snapshot).severity());
@@ -23,7 +23,7 @@ class NoRetryConfigurationCheckTest {
 
     @Test
     void passesJobWithRetriesConfigured() {
-        JobInfo job = new JobInfo(1L, "resilient", null, null, null, true, null, null);
+        JobInfo job = new JobInfo(1L, "resilient", null, null, null, true, null, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());
@@ -31,7 +31,7 @@ class NoRetryConfigurationCheckTest {
 
     @Test
     void skipsJobWithUnknownTaskConfiguration() {
-        JobInfo job = new JobInfo(1L, "unknown", null, null, null, null, null, null);
+        JobInfo job = new JobInfo(1L, "unknown", null, null, null, null, null, null, false);
         WorkspaceSnapshot snapshot = new WorkspaceSnapshot(List.of(), List.of(job), List.of());
 
         assertEquals(Severity.PASS, check.execute(snapshot).severity());
