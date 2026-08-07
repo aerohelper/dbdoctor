@@ -32,7 +32,9 @@ public class DatabricksClusterService implements ClusterService {
                 details.getClusterName(),
                 details.getState() == null ? null : details.getState().toString(),
                 details.getSparkVersion(),
-                autoTermination == null ? null : autoTermination.intValue()
+                autoTermination == null ? null : autoTermination.intValue(),
+                details.getNumWorkers(),
+                details.getPolicyId()
         );
     }
 }

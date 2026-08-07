@@ -9,12 +9,16 @@ package com.dbdoctor.core.model;
  * @param state                  current cluster state, e.g. RUNNING, TERMINATED (as reported by the SDK)
  * @param runtimeVersion         Databricks Runtime version string
  * @param autoTerminationMinutes configured auto-termination timeout; {@code 0} or {@code null} means disabled
+ * @param numWorkers             configured (fixed) worker count; {@code null} if autoscaling or unavailable
+ * @param policyId               cluster policy ID the cluster is governed by; {@code null} if none
  */
 public record ClusterInfo(
         String id,
         String name,
         String state,
         String runtimeVersion,
-        Integer autoTerminationMinutes
+        Integer autoTerminationMinutes,
+        Long numWorkers,
+        String policyId
 ) {
 }
