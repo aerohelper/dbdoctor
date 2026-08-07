@@ -1,6 +1,6 @@
 package com.dbdoctor.api;
 
-import com.databricks.sdk.service.jobs.BaseJob;
+import com.dbdoctor.core.model.JobInfo;
 
 import java.util.List;
 
@@ -8,5 +8,5 @@ import java.util.List;
 public interface JobService {
 
     /** Returns all jobs visible to the authenticated user in this workspace. */
-    List<BaseJob> getJobs();
+    List<JobInfo> getJobs();
 }

@@ -17,6 +17,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.dbdoctor</groupId>
+      <artifactId>doctor-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.databricks</groupId>
       <artifactId>databricks-sdk-java</artifactId>
     </dependency>

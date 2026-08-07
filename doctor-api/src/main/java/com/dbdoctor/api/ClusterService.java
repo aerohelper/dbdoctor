@@ -1,6 +1,6 @@
 package com.dbdoctor.api;
 
-import com.databricks.sdk.service.compute.ClusterDetails;
+import com.dbdoctor.core.model.ClusterInfo;
 
 import java.util.List;
 
@@ -8,5 +8,5 @@ import java.util.List;
 public interface ClusterService {
 
     /** Returns all clusters visible to the authenticated user in this workspace. */
-    List<ClusterDetails> getClusters();
+    List<ClusterInfo> getClusters();
 }

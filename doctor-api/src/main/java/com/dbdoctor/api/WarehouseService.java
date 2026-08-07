@@ -1,6 +1,6 @@
 package com.dbdoctor.api;
 
-import com.databricks.sdk.service.sql.EndpointInfo;
+import com.dbdoctor.core.model.WarehouseInfo;
 
 import java.util.List;
 
@@ -8,5 +8,5 @@ import java.util.List;
 public interface WarehouseService {
 
     /** Returns all SQL warehouses visible to the authenticated user in this workspace. */
-    List<EndpointInfo> getWarehouses();
+    List<WarehouseInfo> getWarehouses();
 }
