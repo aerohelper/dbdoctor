@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Databricks Doctor — Installation Guide</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --text: #1a1a2e;
+    --muted: #5a5f73;
+    --border: #e2e5ec;
+    --accent: #1b1f3b;
+    --accent-2: #2e5cff;
+    --code-bg: #14162b;
+    --code-text: #d9dcf2;
+    --ok: #2e7d32;
+    --warn: #b26a00;
+    --crit: #c62828;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1120;
+      --panel: #171a2e;
+      --text: #eceef7;
+      --muted: #a3a7c2;
+      --border: #2a2e4a;
+      --accent: #ffffff;
+      --accent-2: #7c93ff;
+      --code-bg: #0a0b17;
+      --code-text: #d9dcf2;
+      --ok: #6fcf78;
+      --warn: #ffb648;
+      --crit: #ff6b6b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header.hero {
+    background: linear-gradient(135deg, var(--accent) 0%, #2a2f5c 100%);
+    color: #f4f5ff;
+    padding: 48px 24px 40px;
+    text-align: center;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 32px; }
+  header.hero p { margin: 0; opacity: 0.85; font-size: 16px; }
+  .badge-row { margin-top: 16px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 999px; font-size: 12px; }
+
+  main { max-width: 880px; margin: -24px auto 64px; padding: 0 24px; }
+
+  nav.toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+  }
+  nav.toc h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; }
+  nav.toc a { color: var(--accent-2); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  section.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.05);
+  }
+  section.card h2 {
+    margin-top: 0;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  h3 { font-size: 16px; margin-bottom: 8px; }
+  p { color: var(--text); }
+  .muted { color: var(--muted); }
+
+  pre.term {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    margin: 12px 0;
+  }
+  pre.term .comment { color: #8891c9; }
+  pre.term .prompt { color: #6fcf78; }
+  code.inline {
+    background: rgba(127,127,127,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+  }
+
+  .snap-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 18px 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .snap-label::before { content: "📸"; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+
+  .callout {
+    border-left: 4px solid var(--accent-2);
+    background: rgba(46,92,255,0.07);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .callout.warn { border-left-color: var(--warn); background: rgba(178,106,0,0.08); }
+  .callout.ok { border-left-color: var(--ok); background: rgba(46,125,50,0.08); }
+
+  details.trouble {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin: 10px 0;
+    background: rgba(127,127,127,0.03);
+  }
+  details.trouble summary { cursor: pointer; font-weight: 600; }
+  details.trouble[open] summary { margin-bottom: 8px; }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0 64px; }
+  footer a { color: var(--accent-2); }
+
+  .os-tabs { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .os-tab { font-size: 12px; padding: 3px 10px; border-radius: 6px; background: rgba(127,127,127,0.12); color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🩺 Databricks Doctor</h1>
+  <p>Installation Guide — get <code class="inline" style="background:rgba(255,255,255,0.15);color:#fff;">dbdoctor</code> running against your own workspace in under 10 minutes.</p>
+  <div class="badge-row">
+    <span class="pill">Java 21</span>
+    <span class="pill">Maven</span>
+    <span class="pill">Databricks SDK</span>
+    <span class="pill">v0.1 MVP</span>
+  </div>
+</header>
+
+<main>
+
+<nav class="toc">
+  <h2>On this page</h2>
+  <ol>
+    <li><a href="#prereqs">Prerequisites</a></li>
+    <li><a href="#step1">1. Verify Java &amp; Maven</a></li>
+    <li><a href="#step2">2. Clone the repository</a></li>
+    <li><a href="#step3">3. Build with Maven</a></li>
+    <li><a href="#step4">4. Install the Databricks CLI</a></li>
+    <li><a href="#step5">5. Authenticate</a></li>
+    <li><a href="#step6">6. Verify the install</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+    <li><a href="#next">Next steps</a></li>
+  </ol>
+</nav>
+
+<section class="card" id="prereqs">
+  <h2>Prerequisites</h2>
+  <p>You'll need these installed before you start. dbdoctor has no other runtime dependencies — it's a single self-contained jar once built.</p>
+  <table>
+    <thead><tr><th>Requirement</th><th>Minimum version</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Java (JDK)</strong></td><td>21+</td><td>dbdoctor compiles to the Java 21 language level. A newer JDK (e.g. 25) runs it fine.</td></tr>
+      <tr><td><strong>Apache Maven</strong></td><td>3.9+</td><td>Builds the multi-module project and produces the executable jar.</td></tr>
+      <tr><td><strong>Databricks CLI</strong></td><td>Latest</td><td>Used once, to authenticate. dbdoctor itself doesn't require the CLI at runtime — it just reads the credential file the CLI writes.</td></tr>
+      <tr><td><strong>Git</strong></td><td>Any recent</td><td>To clone the repository.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    You do <strong>not</strong> need a Databricks personal access token, and you never paste a token into dbdoctor directly. Authentication is handled entirely by the Databricks SDK's <em>unified authentication</em>, backed by a one-time browser sign-in via the Databricks CLI.
+  </div>
+</section>
+
+<section class="card" id="step1">
+  <h2><span class="step-num">1</span> Verify Java &amp; Maven</h2>
+  <p>Open a terminal and confirm both are installed and on your <code class="inline">PATH</code>:</p>
+  <div class="snap-label">Snapshot — verifying toolchain</div>
+  <pre class="term"><span class="comment"># check Java</span>
+<span class="prompt">$</span> java -version
+openjdk version "21.0.x" ...
+
+<span class="comment"># check Maven</span>
+<span class="prompt">$</span> mvn -version
+Apache Maven 3.9.x
+Java version: 21.0.x, vendor: Eclipse Adoptium</pre>
+  <p class="muted">If either command isn't found, install a JDK 21+ distribution (e.g. <a href="https://adoptium.net/" target="_blank" rel="noopener">Eclipse Temurin</a>) and <a href="https://maven.apache.org/install.html" target="_blank" rel="noopener">Apache Maven</a> for your OS, then re-open your terminal.</p>
+</section>
+
+<section class="card" id="step2">
+  <h2><span class="step-num">2</span> Clone the repository</h2>
+  <pre class="term"><span class="prompt">$</span> git clone https://github.com/aerohelper/dbdoctor.git
+<span class="prompt">$</span> cd dbdoctor</pre>
+</section>
+
+<section class="card" id="step3">
+  <h2><span class="step-num">3</span> Build with Maven</h2>
+  <p>dbdoctor is a multi-module Maven project (<code class="inline">doctor-core</code>, <code class="inline">doctor-api</code>, <code class="inline">doctor-checks</code>, <code class="inline">doctor-report</code>, <code class="inline">doctor-cli</code>). A single command builds and tests all of them, and packages an executable "fat jar":</p>
+  <pre class="term"><span class="prompt">$</span> mvn clean install</pre>
+  <div class="snap-label">Snapshot — successful build</div>
+  <pre class="term"><span class="comment">... compiling 5 modules, running 57 unit tests ...</span>
+[INFO] BUILD SUCCESS
+[INFO] Total time:  12.4 s</pre>
+  <p>The runnable jar lands at:</p>
+  <pre class="term">doctor-cli/target/dbdoctor-0.1.0-SNAPSHOT.jar</pre>
+  <p class="muted">Every command in this guide (and the User Guide) assumes you run <code class="inline">java -jar doctor-cli/target/dbdoctor-0.1.0-SNAPSHOT.jar &lt;command&gt;</code> from the repo root. If you'd rather not type that every time, see the shell alias tip in <a href="#next">Next steps</a>.</p>
+</section>
+
+<section class="card" id="step4">
+  <h2><span class="step-num">4</span> Install the Databricks CLI</h2>
+  <p>dbdoctor authenticates via the Databricks SDK's unified authentication, and the simplest way to set that up locally is a one-time login through the official Databricks CLI.</p>
+
+  <div class="os-tabs">
+    <span class="os-tab">Windows</span>
+  </div>
+  <pre class="term"><span class="prompt">$</span> winget install --id Databricks.DatabricksCLI -e</pre>
+
+  <div class="os-tabs">
+    <span class="os-tab">macOS</span>
+  </div>
+  <pre class="term"><span class="prompt">$</span> brew tap databricks/tap
+<span class="prompt">$</span> brew install databricks</pre>
+
+  <div class="os-tabs">
+    <span class="os-tab">Linux</span>
+  </div>
+  <pre class="term"><span class="prompt">$</span> curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh</pre>
+
+  <p>Verify the install:</p>
+  <pre class="term"><span class="prompt">$</span> databricks -v
+Databricks CLI v1.11.0</pre>
+</section>
+
+<section class="card" id="step5">
+  <h2><span class="step-num">5</span> Authenticate</h2>
+  <p>Run OAuth U2M (user-to-machine) login against your workspace. This opens a browser window for you to sign in — no token to copy anywhere.</p>
+  <pre class="term"><span class="prompt">$</span> databricks auth login --host https://&lt;your-workspace-url&gt; --profile DEFAULT</pre>
+  <p>Complete the sign-in in the browser tab that opens. On success:</p>
+  <pre class="term">Profile DEFAULT was successfully saved</pre>
+  <div class="callout">
+    <strong>Use the profile name <code class="inline">DEFAULT</code>.</strong> dbdoctor's SDK client resolution reads the <code class="inline">[DEFAULT]</code> section of <code class="inline">~/.databrickscfg</code> automatically — no environment variables or flags needed. If you log in under a different profile name only, dbdoctor won't find it without extra configuration (see <a href="#troubleshooting">Troubleshooting</a>).
+  </div>
+  <p>This writes a config file to <code class="inline">~/.databrickscfg</code> (or <code class="inline">%USERPROFILE%\.databrickscfg</code> on Windows) — dbdoctor and the Databricks CLI both read it. You only need to do this once per machine; the CLI keeps your token refreshed in the OS keyring.</p>
+</section>
+
+<section class="card" id="step6">
+  <h2><span class="step-num">6</span> Verify the install</h2>
+  <p>Run the built-in connectivity check:</p>
+  <div class="snap-label">Snapshot — dbdoctor auth test</div>
+  <pre class="term"><span class="prompt">$</span> java -jar doctor-cli/target/dbdoctor-0.1.0-SNAPSHOT.jar auth test
+
+✓ Databricks authentication successful
+
+Workspace: https://dbc-4d9156d3-b07a.cloud.databricks.com
+User: chetanone@proton.me
+Status: CONNECTED</pre>
+  <p>If you see <code class="inline">CONNECTED</code>, you're fully installed and authenticated. Head to the <a href="user-guide.html">User Guide</a> to run your first scan.</p>
+</section>
+
+<section class="card" id="troubleshooting">
+  <h2>🔧 Troubleshooting</h2>
+
+  <details class="trouble">
+    <summary>"~/.databrickscfg has no DEFAULT profile configured"</summary>
+    <p>You authenticated under a named profile (e.g. <code class="inline">--profile mycompany</code>) instead of <code class="inline">DEFAULT</code>. dbdoctor's zero-argument client only reads the <code class="inline">[DEFAULT]</code> section. Either re-run <code class="inline">databricks auth login --profile DEFAULT</code>, or edit <code class="inline">~/.databrickscfg</code> and add a matching <code class="inline">[DEFAULT]</code> section with the same <code class="inline">host</code>/<code class="inline">auth_type</code> values as your named profile.</p>
+  </details>
+
+  <details class="trouble">
+    <summary>"DEFAULT and &lt;profile&gt; match &lt;host&gt; in ~/.databrickscfg. Use --profile..."</summary>
+    <p>You have <em>two</em> profiles pointing at the same workspace host, and the CLI-backed token source can't disambiguate. Remove the extra profile section from <code class="inline">~/.databrickscfg</code>, keeping only <code class="inline">[DEFAULT]</code>.</p>
+  </details>
+
+  <details class="trouble">
+    <summary>"ClientID cannot be null" / NullPointerException during authentication</summary>
+    <p>This means no usable credential was found at all — most commonly because the <code class="inline">databricks</code> executable isn't on your <code class="inline">PATH</code> in the terminal session running dbdoctor (a fresh install sometimes needs a new terminal/shell session to pick up the updated <code class="inline">PATH</code>). Close and reopen your terminal, confirm <code class="inline">databricks -v</code> works, then retry.</p>
+  </details>
+
+  <details class="trouble">
+    <summary>Build fails with a Mockito / Byte Buddy error on newer JDKs</summary>
+    <p>Very new JDKs occasionally ship faster than test-mocking libraries catch up. The project pins Mockito 5.19.0+, which supports JDK 25. If you're on an even newer JDK and hit this, bump the <code class="inline">mockito.version</code> property in the root <code class="inline">pom.xml</code> to the latest release.</p>
+  </details>
+
+  <details class="trouble">
+    <summary>"Access is denied" deleting target/ on Windows during a rebuild</summary>
+    <p>A previous <code class="inline">java -jar</code> process is still holding files open (the SDK's background token-refresh thread doesn't always exit immediately). Close any running dbdoctor processes, or just wait a few seconds and retry <code class="inline">mvn clean</code>.</p>
+  </details>
+</section>
+
+<section class="card" id="next">
+  <h2>🚀 Next steps</h2>
+  <p>Open the <a href="user-guide.html"><strong>User Guide</strong></a> for every command, flag, and health check dbdoctor supports.</p>
+  <h3>Optional: shorter command</h3>
+  <p>Instead of typing the full jar path every time, add a shell alias:</p>
+  <pre class="term"><span class="comment"># bash/zsh — add to ~/.bashrc or ~/.zshrc</span>
+alias dbdoctor='java -jar /path/to/dbdoctor/doctor-cli/target/dbdoctor-0.1.0-SNAPSHOT.jar'
+
+<span class="comment"># PowerShell — add to your profile</span>
+function dbdoctor { java -jar C:\path\to\dbdoctor\doctor-cli\target\dbdoctor-0.1.0-SNAPSHOT.jar @args }</pre>
+  <p class="muted">The rest of this documentation uses <code class="inline">dbdoctor</code> as shorthand assuming this alias is set up.</p>
+</section>
+
+</main>
+
+<footer>
+  Databricks Doctor v0.1 (MVP) — read-only by design. See the <a href="../README.md">README</a> and <a href="user-guide.html">User Guide</a>.
+</footer>
+
+</body>
+</html>

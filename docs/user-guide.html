@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Databricks Doctor — User Guide</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --text: #1a1a2e;
+    --muted: #5a5f73;
+    --border: #e2e5ec;
+    --accent: #1b1f3b;
+    --accent-2: #2e5cff;
+    --code-bg: #14162b;
+    --code-text: #d9dcf2;
+    --ok: #2e7d32;
+    --ok-bg: #e2f4e4;
+    --warn: #b26a00;
+    --warn-bg: #fff3cd;
+    --crit: #c62828;
+    --crit-bg: #fde0e0;
+    --info: #1a56c4;
+    --info-bg: #e0ecff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1120;
+      --panel: #171a2e;
+      --text: #eceef7;
+      --muted: #a3a7c2;
+      --border: #2a2e4a;
+      --accent: #ffffff;
+      --accent-2: #7c93ff;
+      --code-bg: #0a0b17;
+      --code-text: #d9dcf2;
+      --ok: #6fcf78; --ok-bg: rgba(111,207,120,0.15);
+      --warn: #ffb648; --warn-bg: rgba(255,182,72,0.15);
+      --crit: #ff6b6b; --crit-bg: rgba(255,107,107,0.15);
+      --info: #8fb2ff; --info-bg: rgba(143,178,255,0.15);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header.hero {
+    background: linear-gradient(135deg, var(--accent) 0%, #2a2f5c 100%);
+    color: #f4f5ff;
+    padding: 48px 24px 40px;
+    text-align: center;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 32px; }
+  header.hero p { margin: 0; opacity: 0.85; font-size: 16px; }
+  .badge-row { margin-top: 16px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 999px; font-size: 12px; }
+
+  main { max-width: 960px; margin: -24px auto 64px; padding: 0 24px; }
+
+  nav.toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+  }
+  nav.toc h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; }
+  nav.toc a { color: var(--accent-2); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  section.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.05);
+  }
+  section.card h2 { margin-top: 0; font-size: 22px; }
+  section.card h3 { font-size: 17px; margin: 24px 0 8px; }
+  section.card h3:first-child { margin-top: 0; }
+  p { color: var(--text); }
+  .muted { color: var(--muted); font-size: 14px; }
+
+  pre.term {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px 18px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    margin: 10px 0 16px;
+  }
+  pre.term .comment { color: #8891c9; }
+  pre.term .prompt { color: #6fcf78; }
+  pre.term .ok { color: #6fcf78; }
+  pre.term .warn { color: #ffb648; }
+  pre.term .crit { color: #ff6b6b; }
+  code.inline {
+    background: rgba(127,127,127,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+  }
+
+  .snap-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 18px 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .snap-label::before { content: "📸"; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+  td code.inline { white-space: nowrap; }
+
+  .sev {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .sev.critical { background: var(--crit-bg); color: var(--crit); }
+  .sev.warning  { background: var(--warn-bg); color: var(--warn); }
+  .sev.info     { background: var(--info-bg); color: var(--info); }
+  .sev.pass     { background: var(--ok-bg);   color: var(--ok); }
+
+  .cat-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 28px 0 6px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .cat-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .cat-dot.cluster { background: #7c93ff; }
+  .cat-dot.job { background: #ffb648; }
+  .cat-dot.sql { background: #6fcf78; }
+
+  .callout {
+    border-left: 4px solid var(--accent-2);
+    background: rgba(46,92,255,0.07);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+  .callout.ok { border-left-color: var(--ok); background: var(--ok-bg); }
+  .callout.crit { border-left-color: var(--crit); background: var(--crit-bg); }
+
+  .cmd-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    background: rgba(127,127,127,0.03);
+  }
+  .cmd-title {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent-2);
+    margin: 0 0 6px;
+  }
+
+  .flag-table code.inline { color: var(--accent-2); }
+
+  .score-demo {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin: 12px 0;
+  }
+  .score-demo .big { font-size: 28px; font-weight: 700; color: var(--ok); }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0 64px; }
+  footer a { color: var(--accent-2); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🩺 Databricks Doctor</h1>
+  <p>User Guide — every command, flag, health check, and report format, explained.</p>
+  <div class="badge-row">
+    <span class="pill">14 health checks</span>
+    <span class="pill">3 report formats</span>
+    <span class="pill">100% read-only</span>
+    <span class="pill">v0.1 MVP</span>
+  </div>
+</header>
+
+<main>
+
+<nav class="toc">
+  <h2>On this page</h2>
+  <ol>
+    <li><a href="#overview">What is dbdoctor?</a></li>
+    <li><a href="#auth">How authentication works</a></li>
+    <li><a href="#commands">Command reference</a></li>
+    <li><a href="#cmd-auth-test">→ dbdoctor auth test</a></li>
+    <li><a href="#cmd-scan">→ dbdoctor scan</a></li>
+    <li><a href="#formats">Report formats</a></li>
+    <li><a href="#checks">All 14 health checks</a></li>
+    <li><a href="#scoring">Health score</a></li>
+    <li><a href="#config">Configuration file</a></li>
+    <li><a href="#exit-codes">Exit codes &amp; CI/CD</a></li>
+    <li><a href="#safety">Safety model</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</nav>
+
+<section class="card" id="overview">
+  <h2>What is dbdoctor?</h2>
+  <p><strong>Databricks Doctor</strong> is an open-source, read-only health-assessment CLI for Databricks workspaces. Point it at a workspace and it runs a catalog of configuration and operational checks against your clusters, jobs, and SQL warehouses — then reports what it found as a score, a console summary, a JSON payload (for CI/CD), or a standalone HTML page.</p>
+  <p>Not installed yet? See the <a href="installation-guide.html">Installation Guide</a> first.</p>
+</section>
+
+<section class="card" id="auth">
+  <h2>How authentication works</h2>
+  <p>dbdoctor never asks for a workspace URL or a token on the command line. It uses the Databricks SDK's <strong>unified authentication</strong>: every command reads your credentials from the same place the official Databricks CLI writes them (<code class="inline">~/.databrickscfg</code>'s <code class="inline">[DEFAULT]</code> profile), resolved automatically at startup.</p>
+  <p>This means: authenticate once with <code class="inline">databricks auth login</code> (see the Installation Guide), and every dbdoctor command — <code class="inline">auth test</code>, <code class="inline">scan</code>, anything added in future versions — just works against that workspace with zero flags.</p>
+</section>
+
+<section class="card" id="commands">
+  <h2>Command reference</h2>
+  <p>The root command is <code class="inline">dbdoctor</code>. Run it with no arguments (or <code class="inline">-h</code>/<code class="inline">--help</code>) to see this:</p>
+  <div class="snap-label">Snapshot — dbdoctor --help</div>
+  <pre class="term">Usage: dbdoctor [-hV] [COMMAND]
+Open-source Databricks workspace health analyzer and diagnostics CLI.
+  -h, --help      Show this help message and exit.
+  -V, --version   Print version information and exit.
+Commands:
+  scan  Scan a Databricks workspace for configuration issues and anti-patterns.
+  auth  Authentication utilities.</pre>
+
+  <table>
+    <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">dbdoctor auth test</code></td><td>Verifies dbdoctor can authenticate and reach your workspace's REST API.</td></tr>
+      <tr><td><code class="inline">dbdoctor scan</code></td><td>Runs all 14 health checks against your workspace and prints a report.</td></tr>
+      <tr><td><code class="inline">dbdoctor --help</code> / <code class="inline">-h</code></td><td>Shows top-level usage.</td></tr>
+      <tr><td><code class="inline">dbdoctor --version</code> / <code class="inline">-V</code></td><td>Prints the dbdoctor version.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card" id="cmd-auth-test">
+  <h2>Command: <code class="inline" style="font-size:18px;">dbdoctor auth test</code></h2>
+  <p>Confirms authentication is working before you try a full scan. No flags.</p>
+  <div class="snap-label">Snapshot — successful connection</div>
+  <pre class="term"><span class="ok">✓ Databricks authentication successful</span>
+
+Workspace: https://dbc-4d9156d3-b07a.cloud.databricks.com
+User: chetanone@proton.me
+Status: CONNECTED</pre>
+
+  <div class="snap-label">Snapshot — failed connection</div>
+  <pre class="term"><span class="crit">✗ Databricks authentication failed</span>
+
+Status: FAILED
+Reason: default auth: cannot configure default credentials, please check
+https://docs.databricks.com/en/dev-tools/auth.html#databricks-client-unified-authentication</pre>
+  <p class="muted">On failure, see the Troubleshooting section of the <a href="installation-guide.html#troubleshooting">Installation Guide</a>.</p>
+</section>
+
+<section class="card" id="cmd-scan">
+  <h2>Command: <code class="inline" style="font-size:18px;">dbdoctor scan</code></h2>
+  <p>The core command. Collects your clusters, jobs, and SQL warehouses once, runs all 14 registered health checks against that snapshot, computes a health score, and renders a report.</p>
+
+  <div class="snap-label">Snapshot — dbdoctor scan --help</div>
+  <pre class="term">Usage: dbdoctor scan [-c=&lt;configPath&gt;] [-f=&lt;format&gt;] [-o=&lt;outputPath&gt;]
+Scan a Databricks workspace for configuration issues and anti-patterns.
+  -c, --config=&lt;configPath&gt;
+                          Path to a dbdoctor.yml config file overriding check
+                            thresholds
+  -f, --format=&lt;format&gt;   Report format: console, json, html (default: console)
+  -o, --output=&lt;outputPath&gt;
+                          Write the report to this file instead of stdout</pre>
+
+  <h3>Flags</h3>
+  <table class="flag-table">
+    <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">-f, --format</code></td><td><code class="inline">console</code></td><td>Output format: <code class="inline">console</code>, <code class="inline">json</code>, or <code class="inline">html</code>. See <a href="#formats">Report formats</a> below.</td></tr>
+      <tr><td><code class="inline">-o, --output</code></td><td>stdout</td><td>File path to write the report to. If omitted, the report prints to the terminal.</td></tr>
+      <tr><td><code class="inline">-c, --config</code></td><td>built-in defaults</td><td>Path to a YAML file overriding check thresholds. See <a href="#config">Configuration file</a> below.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+  <div class="cmd-card">
+    <p class="cmd-title">dbdoctor scan</p>
+    <p class="muted">Console report, printed to the terminal, using all default thresholds.</p>
+  </div>
+  <div class="cmd-card">
+    <p class="cmd-title">dbdoctor scan --format json --output report.json</p>
+    <p class="muted">JSON report written to <code class="inline">report.json</code> — ideal for CI/CD pipelines.</p>
+  </div>
+  <div class="cmd-card">
+    <p class="cmd-title">dbdoctor scan --format html --output report.html</p>
+    <p class="muted">Standalone HTML report you can open in a browser or attach to a Slack message / email.</p>
+  </div>
+  <div class="cmd-card">
+    <p class="cmd-title">dbdoctor scan --config dbdoctor.yml</p>
+    <p class="muted">Console report, but with your own thresholds from <code class="inline">dbdoctor.yml</code> instead of the built-in defaults.</p>
+  </div>
+</section>
+
+<section class="card" id="formats">
+  <h2>Report formats</h2>
+
+  <h3>Console (default)</h3>
+  <p>A boxed, human-readable summary: overall score, a pass/warning/critical count per resource category, and a "Top Issues" list of everything that isn't a clean pass, sorted worst-first.</p>
+  <div class="snap-label">Snapshot — console report</div>
+  <pre class="term">╔════════════════════════════════════╗
+║          DATABRICKS DOCTOR          ║
+╚════════════════════════════════════╝
+
+Workspace: https://dbc-4d9156d3-b07a.cloud.databricks.com
+Workspace Health: 100/100
+
+Clusters
+────────
+<span class="ok">✓ 7 passed</span>
+
+Jobs
+────
+<span class="ok">✓ 5 passed</span>
+
+SQL Warehouses
+──────────────
+<span class="ok">✓ 2 passed</span></pre>
+
+  <p>When issues are found, a <strong>Top Issues</strong> section appears, e.g.:</p>
+  <pre class="term">Clusters
+────────
+<span class="ok">✓ 4 passed</span>
+<span class="warn">⚠ 2 warnings</span>
+<span class="crit">✗ 1 critical</span>
+
+Top Issues
+──────────
+<span class="crit">✗ CLUSTER-001</span>
+  Auto termination is disabled
+
+<span class="warn">⚠ JOB-001</span>
+  Retry policy not configured
+
+<span class="warn">⚠ SQL-002</span>
+  Oversized warehouse</pre>
+
+  <h3>JSON</h3>
+  <p>Machine-readable, for scripting and CI/CD gates. Shape: <code class="inline">{ workspace, scannedAt, score, summary, checks[] }</code>.</p>
+  <div class="snap-label">Snapshot — JSON report (excerpt)</div>
+  <pre class="term">{
+  "workspace" : "https://dbc-4d9156d3-b07a.cloud.databricks.com",
+  "scannedAt" : "2026-08-07T13:05:38.307077400Z",
+  "score" : 100,
+  "summary" : {
+    "total" : 14,
+    "passed" : 14,
+    "info" : 0,
+    "warning" : 0,
+    "critical" : 0
+  },
+  "checks" : [ {
+    "checkId" : "CLUSTER-001",
+    "title" : "Auto termination is configured",
+    "severity" : "PASS",
+    "description" : "All clusters have auto termination enabled.",
+    "recommendation" : "N/A"
+  }, {
+    "checkId" : "CLUSTER-002",
+    "title" : "Auto termination periods are reasonable",
+    "severity" : "PASS",
+    "description" : "No cluster exceeds the 120-minute auto termination threshold.",
+    "recommendation" : "N/A"
+  }
+  <span class="comment">/* ... 12 more checks ... */</span>
+  ]
+}</pre>
+  <p class="muted"><code class="inline">scannedAt</code> is always ISO-8601 (e.g. <code class="inline">2026-08-07T13:05:38Z</code>), never a raw numeric timestamp — safe to parse with any standard date library.</p>
+
+  <h3>HTML</h3>
+  <p>A standalone, styled HTML page — no external stylesheets or scripts, so it's safe to email or attach as a CI artifact. It shows the score prominently, colored severity badges, and one table per resource category (Clusters / Jobs / SQL Warehouses) listing every check's title, description, and recommendation.</p>
+  <div class="callout ok">Open an HTML report in any browser — double-click the file, no server required.</div>
+</section>
+
+<section class="card" id="checks">
+  <h2>All 14 health checks</h2>
+  <p>Every check runs against every scan, always. Grouped by the resource category it inspects. Full write-ups (why it matters, exact detection logic) live in <a href="../docs/checks/">docs/checks/</a> — one markdown file per check ID.</p>
+
+  <div class="cat-heading"><span class="cat-dot cluster"></span> Clusters</div>
+  <table>
+    <thead><tr><th>ID</th><th>Check</th><th>Severity</th><th>Default threshold</th><th>What it flags</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">CLUSTER-001</code></td><td>Auto termination disabled</td><td><span class="sev critical">CRITICAL</span></td><td>—</td><td>Auto-termination is unset or 0 minutes.</td></tr>
+      <tr><td><code class="inline">CLUSTER-002</code></td><td>Excessive auto-termination period</td><td><span class="sev warning">WARNING</span></td><td>120 min</td><td>Auto-termination is enabled but set higher than the threshold.</td></tr>
+      <tr><td><code class="inline">CLUSTER-003</code></td><td>Outdated Databricks Runtime</td><td><span class="sev warning">WARNING</span></td><td>major v13</td><td>Runtime major version below the configured minimum.</td></tr>
+      <tr><td><code class="inline">CLUSTER-004</code></td><td>Missing cluster policy</td><td><span class="sev warning">WARNING</span></td><td>—</td><td>No cluster policy attached.</td></tr>
+      <tr><td><code class="inline">CLUSTER-005</code></td><td>Oversized cluster</td><td><span class="sev warning">WARNING</span></td><td>10 workers</td><td>Fixed-size cluster with more workers than the threshold.</td></tr>
+      <tr><td><code class="inline">CLUSTER-006</code></td><td>Local disk encryption disabled</td><td><span class="sev warning">WARNING</span></td><td>—</td><td>Local disk encryption is off or unreported.</td></tr>
+      <tr><td><code class="inline">CLUSTER-007</code></td><td>No instance pool</td><td><span class="sev info">INFO</span></td><td>—</td><td>Cluster doesn't draw from an instance pool (opinionated suggestion, not a hard rule).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cat-heading"><span class="cat-dot job"></span> Jobs</div>
+  <table>
+    <thead><tr><th>ID</th><th>Check</th><th>Severity</th><th>Default threshold</th><th>What it flags</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">JOB-001</code></td><td>No retry configuration</td><td><span class="sev warning">WARNING</span></td><td>—</td><td>No task on the job has a retry policy.</td></tr>
+      <tr><td><code class="inline">JOB-002</code></td><td>Repeated failures</td><td><span class="sev critical">CRITICAL</span></td><td>3 of last 10 runs</td><td>Job has failed at least this many times recently.</td></tr>
+      <tr><td><code class="inline">JOB-003</code></td><td>Excessive runtime</td><td><span class="sev warning">WARNING</span></td><td>180 min</td><td>Most recent run took longer than the threshold.</td></tr>
+      <tr><td><code class="inline">JOB-004</code></td><td>No timeout configured</td><td><span class="sev warning">WARNING</span></td><td>—</td><td>No run timeout set — a stuck run could occupy compute forever.</td></tr>
+      <tr><td><code class="inline">JOB-005</code></td><td>Missing failure notifications</td><td><span class="sev warning">WARNING</span></td><td>—</td><td>No email or webhook notification configured for run failure.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cat-heading"><span class="cat-dot sql"></span> SQL Warehouses</div>
+  <table>
+    <thead><tr><th>ID</th><th>Check</th><th>Severity</th><th>Default threshold</th><th>What it flags</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">SQL-001</code></td><td>Auto-stop disabled</td><td><span class="sev critical">CRITICAL</span></td><td>—</td><td>Auto-stop is unset or 0 minutes.</td></tr>
+      <tr><td><code class="inline">SQL-002</code></td><td>Oversized warehouse</td><td><span class="sev warning">WARNING</span></td><td>Large and above</td><td>Warehouse cluster size is in the configured "large" tier set.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    Two checks the plan considered but deliberately <strong>excluded</strong> from v0.1: <em>idle cluster</em> and <em>large warehouse with low utilization</em>. Both would require Query History / System Tables usage data that isn't wired up yet — dbdoctor doesn't invent metrics it can't reliably compute.
+  </div>
+</section>
+
+<section class="card" id="scoring">
+  <h2>Health score</h2>
+  <p>dbdoctor's own opinionated 0–100 score — <strong>not</strong> an industry-standard metric. It starts at 100 and deducts per finding:</p>
+  <div class="score-demo">
+    <span>100</span>
+    <span>−15 × <span class="crit" style="color:#ff6b6b;">criticals</span></span>
+    <span>−5 × <span class="warn" style="color:#ffb648;">warnings</span></span>
+    <span>=</span>
+    <span class="big">score</span>
+  </div>
+  <p><code class="inline">INFO</code>-level findings don't affect the score. The score never goes below 0. Both penalty values are configurable programmatically if you're embedding dbdoctor's scoring logic elsewhere, though the CLI doesn't yet expose flags for them (see <a href="#config">Configuration file</a> for what <em>is</em> CLI-configurable today).</p>
+</section>
+
+<section class="card" id="config">
+  <h2>Configuration file</h2>
+  <p>Every check's threshold has a sensible built-in default, but you can override any of them with a YAML file passed via <code class="inline">--config</code>. You only need to specify the fields you want to change — everything else keeps its default.</p>
+
+  <div class="snap-label">Example — examples/dbdoctor.yml</div>
+  <pre class="term">checks:
+  cluster:
+    maxAutoTerminationMinutes: 120   <span class="comment"># CLUSTER-002</span>
+    minSupportedRuntimeMajorVersion: 13   <span class="comment"># CLUSTER-003</span>
+    maxWorkers: 10   <span class="comment"># CLUSTER-005</span>
+
+  job:
+    failureThreshold: 3   <span class="comment"># JOB-002</span>
+    maxRuntimeMinutes: 180   <span class="comment"># JOB-003</span>
+
+  warehouse:
+    largeSizes:   <span class="comment"># SQL-002</span>
+      - Large
+      - X-Large
+      - 2X-Large
+      - 3X-Large
+      - 4X-Large</pre>
+
+  <p>Run with:</p>
+  <pre class="term"><span class="prompt">$</span> dbdoctor scan --config dbdoctor.yml</pre>
+
+  <p><strong>Minimal example</strong> — override just one threshold, everything else stays default:</p>
+  <pre class="term">checks:
+  job:
+    maxRuntimeMinutes: 60   <span class="comment"># stricter than the 180-minute default</span></pre>
+
+  <div class="callout">
+    Only fields that map to a real, configurable check threshold are supported. Checks with no tunable parameter (e.g. <code class="inline">CLUSTER-001</code> auto-termination disabled, <code class="inline">SQL-001</code> auto-stop disabled) have nothing to put in the config file — there's no fake "enable/disable this check" flag yet.
+  </div>
+</section>
+
+<section class="card" id="exit-codes">
+  <h2>Exit codes &amp; CI/CD</h2>
+  <table>
+    <thead><tr><th>Exit code</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">0</code></td><td>Scan completed, no CRITICAL findings.</td></tr>
+      <tr><td><code class="inline">1</code></td><td>Scan completed, but at least one CRITICAL finding was found.</td></tr>
+    </tbody>
+  </table>
+  <p>This makes <code class="inline">dbdoctor scan</code> directly usable as a CI/CD gate:</p>
+  <pre class="term"><span class="comment"># GitHub Actions step — fails the job if any CRITICAL issue exists</span>
+- name: Databricks health check
+  run: dbdoctor scan --format json --output scan.json</pre>
+</section>
+
+<section class="card" id="safety">
+  <h2>🛡️ Safety model</h2>
+  <p>dbdoctor is <strong>entirely read-only</strong> in v0.1:</p>
+  <pre class="term">READ Databricks
+      ↓
+   ANALYZE
+      ↓
+    REPORT</pre>
+  <p>It never edits a cluster, deletes a resource, changes a policy, or stops compute. Every Databricks SDK call dbdoctor makes is a <code class="inline">list</code>, <code class="inline">listRuns</code>, or <code class="inline">me</code> read — verified by inspecting every call site in the codebase. Safe to point at a production workspace without asking anyone's permission first.</p>
+</section>
+
+<section class="card" id="faq">
+  <h2>❓ FAQ</h2>
+
+  <h3>Do I need to pass my workspace URL to every command?</h3>
+  <p>No. It's resolved automatically from your Databricks CLI login (<code class="inline">~/.databrickscfg</code>). See <a href="#auth">How authentication works</a>.</p>
+
+  <h3>Can dbdoctor scan multiple workspaces at once?</h3>
+  <p>Not yet — each run targets whichever workspace your <code class="inline">DEFAULT</code> profile points to. Multi-workspace support is on the long-term roadmap (v1.0), not the v0.1 MVP.</p>
+
+  <h3>Does dbdoctor check Delta Lake or Unity Catalog?</h3>
+  <p>Not in v0.1. The MVP scope is deliberately Clusters + Jobs + SQL Warehouses only. Delta Lake health, Unity Catalog, Spark performance, and cost prediction are all future roadmap items (see the README's Future Roadmap section).</p>
+
+  <h3>Can I disable a specific check?</h3>
+  <p>Not yet — all 14 checks always run. Per-check enable/disable is a natural extension of the config file but isn't implemented in v0.1.</p>
+
+  <h3>Where do I report a bug or suggest a check?</h3>
+  <p>Open an issue on the project's GitHub repository. Contributions are welcome — see the Contributing section of the <a href="../README.md">README</a>.</p>
+</section>
+
+</main>
+
+<footer>
+  Databricks Doctor v0.1 (MVP) — <a href="installation-guide.html">Installation Guide</a> · <a href="../README.md">README</a> · <a href="checks/">Rule catalog</a>
+</footer>
+
+</body>
+</html>
