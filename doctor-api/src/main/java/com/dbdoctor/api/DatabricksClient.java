@@ -1,8 +1,6 @@
 package com.dbdoctor.api;
 
 import com.databricks.sdk.WorkspaceClient;
-import com.databricks.sdk.service.compute.ClusterDetails;
-import com.databricks.sdk.service.compute.ListClustersRequest;
 import com.databricks.sdk.service.iam.User;
 
 /**
@@ -33,11 +31,6 @@ public class DatabricksClient {
     public String currentUserName() {
         User user = workspaceClient.currentUser().me();
         return user.getUserName();
-    }
-
-    /** Lists all clusters visible to the authenticated user in this workspace. */
-    public Iterable<ClusterDetails> listClusters() {
-        return workspaceClient.clusters().list(new ListClustersRequest());
     }
 
     /** Access to the full underlying SDK client for capabilities not yet wrapped here. */
