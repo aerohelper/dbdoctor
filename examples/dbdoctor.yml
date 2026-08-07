@@ -1,0 +1,20 @@
+# Example dbdoctor configuration. Every field is optional — anything you omit
+# keeps the check's built-in default. Run with: dbdoctor scan --config dbdoctor.yml
+
+checks:
+  cluster:
+    maxAutoTerminationMinutes: 120   # CLUSTER-002
+    minSupportedRuntimeMajorVersion: 13   # CLUSTER-003
+    maxWorkers: 10   # CLUSTER-005
+
+  job:
+    failureThreshold: 3   # JOB-002
+    maxRuntimeMinutes: 180   # JOB-003
+
+  warehouse:
+    largeSizes:   # SQL-002
+      - Large
+      - X-Large
+      - 2X-Large
+      - 3X-Large
+      - 4X-Large
