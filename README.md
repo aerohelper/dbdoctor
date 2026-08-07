@@ -233,6 +233,35 @@ Reporting
 
 ---
 
+# Safety Model
+
+For v0.1, dbdoctor is entirely read-only.
+
+```
+READ Databricks
+      ↓
+ANALYZE
+      ↓
+REPORT
+```
+
+It should not, and does not:
+
+* EDIT CLUSTER
+* DELETE RESOURCE
+* CHANGE POLICY
+* STOP COMPUTE
+
+Every Databricks SDK call dbdoctor makes is a `list`/`listRuns`/`me` read — there is no
+create, update, or delete call anywhere in the codebase. This is what makes it safe for
+engineers to point at a production workspace and try without asking anyone's permission
+first.
+
+A future `dbdoctor fix` command that makes changes is on the long-term roadmap, but is
+explicitly out of scope for the MVP.
+
+---
+
 # Sample Commands
 
 ```
