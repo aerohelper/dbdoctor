@@ -30,6 +30,9 @@
     <logback.version>1.5.12</logback.version>
     <junit.version>5.11.3</junit.version>
     <mockito.version>5.19.0</mockito.version>
+
+    <!-- Pinned per Databricks' guidance to pin the exact minor version while the SDK is pre-1.0 -->
+    <databricks-sdk.version>0.54.0</databricks-sdk.version>
   </properties>
 
   <dependencyManagement>
@@ -78,6 +81,13 @@
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${jackson.version}</version>
+      </dependency>
+
+      <!-- Databricks -->
+      <dependency>
+        <groupId>com.databricks</groupId>
+        <artifactId>databricks-sdk-java</artifactId>
+        <version>${databricks-sdk.version}</version>
       </dependency>
 
       <!-- Logging -->

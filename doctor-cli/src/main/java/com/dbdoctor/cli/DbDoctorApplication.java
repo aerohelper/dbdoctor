@@ -9,7 +9,7 @@ import picocli.CommandLine.Command;
         mixinStandardHelpOptions = true,
         version = "dbdoctor 0.1.0",
         description = "Open-source Databricks workspace health analyzer and diagnostics CLI.",
-        subcommands = {ScanCommand.class}
+        subcommands = {ScanCommand.class, AuthCommand.class}
 )
 public class DbDoctorApplication implements Runnable {
 

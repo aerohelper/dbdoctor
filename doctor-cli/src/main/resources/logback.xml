@@ -5,6 +5,8 @@
         </encoder>
     </appender>
 
+    <logger name="com.databricks" level="WARN"/>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
