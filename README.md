@@ -2,9 +2,11 @@
 
 ## Overview
 
-Databricks Doctor is an open-source health assessment and diagnostics tool for Databricks workspaces.
+Databricks Doctor is an **open-source Databricks health checker and diagnostics CLI** that analyzes Databricks workspaces for performance, reliability, governance, security, and cost optimization issues.
 
-Its goal is to help data engineers, platform engineers, and administrators identify performance, configuration, governance, reliability, and cost optimization issues through automated health checks and actionable recommendations.
+It runs an automated Databricks health check across your clusters, jobs, and SQL warehouses — cluster health, job monitoring, auto-termination and auto-stop hygiene, retry and timeout policies, oversized compute — and turns the results into a health score and actionable recommendations. Built for data engineers, platform engineers, and administrators who want a fast, repeatable Databricks diagnostic tool instead of digging through the workspace UI by hand.
+
+`Databricks` · `Apache Spark` · `Delta Lake` · `Data Engineering` · `Lakehouse`
 
 The long-term vision is to become the "SonarQube for Databricks".
 
@@ -14,7 +16,7 @@ The long-term vision is to become the "SonarQube for Databricks".
 
 Modern Databricks environments contain hundreds of jobs, clusters, SQL Warehouses, Delta tables, pipelines, and governance policies.
 
-As these environments grow, identifying configuration issues, performance bottlenecks, security gaps, and unnecessary cloud costs becomes increasingly difficult.
+As these environments grow, identifying configuration issues, Spark performance bottlenecks, security gaps, and unnecessary cloud costs becomes increasingly difficult — Databricks monitoring and cost optimization end up done manually, one cluster at a time.
 
 Databricks Doctor aims to provide a single command that scans an entire workspace and generates a comprehensive health report.
 
