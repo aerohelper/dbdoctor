@@ -96,34 +96,6 @@ Reports:
 * Optimize Recommendations
 * Vacuum Recommendations
 
-## v0.3
-
-* Unity Catalog
-* Cluster Policies
-* Security Checks
-* Workspace Governance
-
-## v0.4
-
-* Structured Streaming Diagnostics
-* Auto Loader Checks
-* Pipeline Health
-
-## v0.5
-
-* Cost Optimization
-* Cluster Utilization
-* Idle Resources
-* Cloud Spend Estimation
-
-## v1.0
-
-* Plugin Framework
-* GitHub Action
-* Historical Trend Analysis
-* Multi-Workspace Support
-* Enterprise Reporting
-
 ---
 
 # High-Level Architecture
